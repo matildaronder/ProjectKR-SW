@@ -1,31 +1,42 @@
 from rdflib import Graph
 
-# Load local turtle file
-g = Graph()
-g.parse("music_data.ttl", format="turtle")
+def init_graph():
+       # Load local turtle file
+       g = Graph()
+       g.parse("music_data.ttl", format="turtle")
+       return g
 
+def local_query(graph : Graph, time_of_day : str):
 
-# Define prefix for query, can be used on very query
-prefix = """PREFIX ns1: <http://purl.org/ontology/mo/>
-            PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-            """
+       # Define prefix for query, can be used on very query
+       prefix = """PREFIX mo: <http://purl.org/ontology/mo/>
+              PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+              """
 
-# Define specific query for what you looking for, ORDER BY RAND() need to be used for random results everytime.
-query = prefix  + """
-SELECT ?SongName ?ArtistName
-WHERE {
-  ?track a ns1:Track ;
-         ns1:performer ?artist ;
-         rdfs:label ?SongName ;
-         ns1:time "Morning" .
+       # Define specific query for what you looking for, ORDER BY RAND() need to be used for random results everytime.
+       query = prefix  + f"""
+       SELECT ?SongName ?ArtistName
+       WHERE {{
+       ?track a mo:Track ;
+              mo:performer ?artist ;
+              rdfs:label ?SongName ;
+              mo:time "{time_of_day}" .
 
-  ?artist a ns1:MusicArtist ;
-         rdfs:label ?ArtistName .
-}
-ORDER BY RAND()
-LIMIT 10"""
+       ?artist a mo:MusicArtist ;
+              rdfs:label ?ArtistName .
+       }}
+       ORDER BY RAND()
+       LIMIT 10"""
 
-# SongName, ArtistName defined in query
-results = g.query(query)
-for row in results:
-    print(f" Name: {row.SongName} , Arist: {row.ArtistName}")
+       # SongName, ArtistName defined in query
+       results = graph.query(query)
+       results_list = []
+
+       for row in results:
+              results_list.append((str(row.SongName), str(row.ArtistName)))
+
+       return results
+
+g = init_graph()
+results = local_query(g, "Morning")
+print (results)
