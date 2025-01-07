@@ -14,7 +14,6 @@ load_dotenv()
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 REDIRECT_URI = 'http://localhost:8080/callback/'
-#Spotify API
 SCOPE = 'playlist-modify-private'
 sp = spotipy.Spotify(auth_manager = SpotifyOAuth(client_id = CLIENT_ID,
                                             client_secret = CLIENT_SECRET,
@@ -38,7 +37,6 @@ def main():
         queried_songs_dbpedia.extend(externalquery.dbpedia_query(artist))
         #queried_songs_wikidata.extend(externalquery.wikidata_query(artist))
 
-
     collected_list = spotify_graph
     collected_list.extend(queried_songs_dbpedia)
 
@@ -56,13 +54,7 @@ def main():
             track_uris.append(track_uri)
 
     if(track_uris):
-        spotifyAPI.add_tracks_to_playlist(playlist_id,track_uris)
-
-
-
-
-
-
+        spotifyAPI.add_tracks_to_playlist(playlist_id,track)
 def choseTimeOfDay():
     timeOfDay = input("What time of day would you base your music recomendation on? \n 1. Morning \n 2. Afternoon \n 3. Evening \n 4. Night ")
     return timeOfDay
