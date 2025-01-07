@@ -25,7 +25,6 @@ def local_query(graph : Graph, time_of_day : str):
        ?artist a mo:MusicArtist ;
               rdfs:label ?ArtistName .
        }}
-       ORDER BY RAND()
        LIMIT 10"""
 
        # SongName, ArtistName defined in query
@@ -35,8 +34,8 @@ def local_query(graph : Graph, time_of_day : str):
        for row in results:
               results_list.append((str(row.SongName), str(row.ArtistName)))
 
-       return results
+       return results_list
 
 g = init_graph()
-results = local_query(g, "Morning")
-print (results)
+results_list = local_query(g, "Morning")
+print (results_list)

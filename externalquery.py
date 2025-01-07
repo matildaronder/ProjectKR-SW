@@ -1,6 +1,7 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 
 def dbpedia_query():
+    global results_list
     #connect to the DBpedia SPARQL endpoint
     sparql = SPARQLWrapper("https://dbpedia.org/sparql")
     sparql.setReturnFormat(JSON)
