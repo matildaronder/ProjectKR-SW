@@ -4,30 +4,34 @@ import os
 from dotenv import load_dotenv
 
 #Spotify API credentials
-load_dotenv()
-CLIENT_ID = os.getenv('CLIENT_ID')
-CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 
-#Registered Redirect URI
-REDIRECT_URI = 'http://localhost:8080/callback/'
 
-#Spotify API
-SCOPE = 'playlist-modify-private'
 
-#Authenticate
-sp = spotipy.Spotify(auth_manager = SpotifyOAuth(client_id = CLIENT_ID,
+
+
+def authenticate():
+    load_dotenv()
+    CLIENT_ID = "9c1ab41b9fa64329961895ff2bdb618b"
+    CLIENT_SECRET = "bb305798bd5149d28de56c1f64cca720"
+    #Registered Redirect URI
+    REDIRECT_URI = 'http://localhost:8080/callback/'
+
+    #Spotify API
+    SCOPE = 'playlist-modify-private'
+    sp = spotipy.Spotify(auth_manager = SpotifyOAuth(client_id = CLIENT_ID,
                                                client_secret = CLIENT_SECRET,
                                                redirect_uri = REDIRECT_URI,
                                                scope=SCOPE))
+    return sp
 
-def create_playlist(user_id, name = "My Playlist", description = "Created by a Python Script"):
+def create_playlist(sp,user_id, name = "My Playlist", description = "Created by a Python Script"):
     playlist = sp.user_playlist_create(user = user_id, name = name, public = False, description = description)
     return playlist['id']
 
-def add_tracks_to_playlist(playlist_id, track_uris):
+def add_tracks_to_playlist(sp,playlist_id, track_uris):
     sp.playlist_add_items(playlist_id, track_uris)
 
-def search_track(artist, track):
+def search_track(artist, track,sp):
     query = f"track:{track} artist:{artist}"
     results = sp.search(q = query, type = "track", limit = 1)
     if results['tracks']['items']:
@@ -75,12 +79,10 @@ def main():
         track_uri = search_track(artist, track)
         if track_uri:
             track_uris.append(track_uri)
-
+    
     if track_uris:
         add_tracks_to_playlist(playlist_id, track_uris)
         print(f"{len(track_uris)} tracks added to the playlist!")
     else:
         print("No tracks were found or added.")
 
-if __name__ == "__main__":
-    main()
