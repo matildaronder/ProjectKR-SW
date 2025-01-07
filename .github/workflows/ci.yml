@@ -1,0 +1,20 @@
+name: Spotify Secret
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+
+jobs:
+  example_job:
+    runs-on: ubuntu-latest  # Run on Ubuntu
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Use Secret ID
+        run: echo "The secret value is ${{ secrets.CLIENT_ID }}"
+
+      - name: Use CLIENT Secret 
+        run: echo "The secret value is ${{ secrets.CLIENT_SECRET }}"
