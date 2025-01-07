@@ -13,8 +13,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v2
 
-      - name: Use Secret ID
-        run: echo "The secret value is ${{ secrets.CLIENT_ID }}"
-
-      - name: Use CLIENT Secret 
-        run: echo "The secret value is ${{ secrets.CLIENT_SECRET }}"
+      - name: Set up environment variables
+        run: |
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
