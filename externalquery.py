@@ -1,6 +1,6 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 
-def dbpedia_query():
+def dbpedia_query(artistName : str):
     #connect to the DBpedia SPARQL endpoint
     sparql = SPARQLWrapper("https://dbpedia.org/sparql")
     sparql.setReturnFormat(JSON)
@@ -10,13 +10,14 @@ def dbpedia_query():
                 PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
                 """
 
-    query_dbpedia = prefix + """SELECT ?song ?songLabel ?artist ?artistLabel WHERE {
+    query_dbpedia = prefix + f"""SELECT ?song ?songLabel ?artist ?artistLabel WHERE {{
                             ?song a dbo:Song ;
-                                dbo:artist ?artist .
-                            OPTIONAL { ?song rdfs:label ?songLabel FILTER (lang(?songLabel) = "en") }
-                            OPTIONAL { ?artist rdfs:label ?artistLabel FILTER (lang(?artistLabel) = "en") }
-
-                        } LIMIT 10"""
+                                    dbo:artist ?artist ;
+                                    rdfs:label ?songLabel .
+                                ?artist rdfs:label ?artistLabel .
+                            FILTER (lang(?songLabel) = "en" && lang(?artistLabel) = "en")
+                            FILTER (CONTAINS(?artistLabel, "{artistName}"))
+                            }} LIMIT 25"""
 
     sparql.setQuery(query_dbpedia)
 
@@ -35,24 +36,20 @@ def dbpedia_query():
     return results_list
 
 
-def wikidata_query():
+def wikidata_query(artistName : str):
     #connect to the Wikidata SPARQL endpoint
     sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
     sparql.setReturnFormat(JSON)
 
     # Check https://www.wikidata.org/wiki/Wikidata:Main_Page for finding P31, and Q7366
-    query_wikidata = """SELECT ?song ?songLabel ?artist ?artistLabel WHERE {
+    query_wikidata = f"""SELECT ?song ?songLabel ?artist ?artistLabel WHERE {{
                         ?song wdt:P31 wd:Q7366 ;
-                        wdt:P136 wd:Q11399 ;
-                        wdt:P175 ?artist .
-    
-                        SERVICE wikibase:label {
-                            bd:serviceParam wikibase:language "en" .
-                            }   
-                        } LIMIT 10
-
-
-    """
+                                wdt:P175 ?artist ;
+                                rdfs:label ?songLabel .
+                            ?artist rdfs:label ?artistLabel .
+                        FILTER(CONTAINS(?artistLabel, "{artistName}")) .
+                        FILTER(LANG(?artistLabel) = "en" && LANG(?songLabel) = "en") .
+                        }} LIMIT 25"""
     sparql.setQuery(query_wikidata)
 
     try:

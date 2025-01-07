@@ -35,7 +35,7 @@ def local_query(graph : Graph, time_of_day : str):
        for row in results:
               results_list.append((str(row.SongName), str(row.ArtistName)))
 
-       return results
+       return results_list
 
 g = init_graph()
 results = local_query(g, "Morning")
