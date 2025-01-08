@@ -42,55 +42,41 @@ def wikidata_query(artistName : str, songName : str):
     sparql.setReturnFormat(JSON)
 
     # Check https://www.wikidata.org/wiki/Wikidata:Main_Page for finding P31, and Q7366
-    query_wikidata = f"""SELECT DISTINCT ?song ?songLabel ?artist ?artistLabel WHERE {{
-                        ?song wdt:P31 wd:Q55850593 ;
-                                wdt:P175 ?artist ;
-                                rdfs:label ?songLabel .
-                            ?artist rdfs:label ?artistLabel .
-                        FILTER(CONTAINS(?artistLabel, "{artistName}")) .
-                        FILTER(LANG(?artistLabel) = "en" && LANG(?songLabel) = "en") .
-                        }} LIMIT 5"""
-    
+    query_wikidata = f"""SELECT DISTINCT ?influencedArtist ?influencedSong ?sameGenreSong ?sameGenreArtistLabel ?recommendedSongLabel ?recommendedArtistLabel
+                        WHERE {{
+                            ?song rdfs:label "{songName}"@en ;
+                                wdt:P175 ?artist .
+                            ?artist rdfs:label "{artistName}"@en .
 
-    query_wikidata2 = f"""SELECT DISTINCT ?recommendedSong ?recommendedSongLabel WHERE {{
-                        SERVICE wikibase:label {{ bd:serviceParam wikibase:language "[AUTO_LANGUAGE]". }}
+                            OPTIONAL {{
+                                ?artist wdt:P737 ?influencedArtist .
+                                ?influencedArtist rdfs:label ?recommendedArtistLabel .
+                                ?influencedSong wdt:P175 ?influencedArtist ;
+                                                wdt:P31/wdt:P279* wd:Q7366 ;
+                                                rdfs:label ?recommendedSongLabel .
+                                FILTER (lang(?recommendedArtistLabel) = "en" && lang(?recommendedSongLabel) = "en")
+                            }}
 
-                        ?song rdfs:label "{songName}"@en.
-                        ?song wdt:P175 ?artist.
-                        ?song wdt:P136 ?genre.
-                        ?song wdt:P264 ?musicLabel.
-                        ?song wdt:P495 ?country.
-                        ?song wdt:P175 ?collaborator.
-                        
-                        ?artist rdfs:label "{artistName}"@en.
-                        ?artist wdt:P941 ?inspiredBy.
-                                
-                        {{
-                            ?recommendedSong wdt:P175 ?collaborator.
-                        }} UNION {{
-                            ?recommendedSong wdt:P136 ?genre.
-                        }} UNION {{
-                            ?recommendedSong wdt:P175 ?inspiredBy.
-                        }}
-                        
-                        
-                        {{ 
-                            ?recommendedSong wdt:P31 wd:Q7366.
-                        }} UNION {{
-                            ?recommendedSong wdt:P31 wd:Q134556. 
-                        }}
+                            OPTIONAL {{
+                                ?song wdt:P136 ?genre ;
+                                    wdt:P577 ?releaseDate .
+                                ?sameGenreSong wdt:P136 ?genre ;
+                                    wdt:P577 ?sameGenreReleaseDate ;
+                                    wdt:P175 ?sameGenreArtist ;
+                                    wdt:P31/wdt:P279* wd:Q7366 ;
+                                    rdfs:label ?recommendedSongLabel .
+                                ?sameGenreArtist rdfs:label ?recommendedArtistLabel .
+                    
+                                FILTER (abs(year(?releaseDate) - year(?sameGenreReleaseDate)) <= 2 )
+                                FILTER (lang(?recommendedSongLabel) = "en" && lang(?recommendedArtistLabel) = "en" )
+                            }}
 
-                            ?recommendedSong rdfs:label ?recommendedSongLabel.
-                            ?recommendedSong wdt:P175 ?recommendedArtist.
-                            ?recommendedArtist rdfs:label ?recommendedArtistLabel.
-
-                            FILTER(LANG(?recommendedSongLabel) = "en" && LANG(?recommendedArtistLabel) = "en")
-
+                            SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
                         }}
                         ORDER BY RAND()
                         LIMIT 5"""
 
-    sparql.setQuery(query_wikidata2)
+    sparql.setQuery(query_wikidata)
 
     results_list = []
     try:

@@ -32,14 +32,13 @@ def main():
         timeOfDay   = choseTimeOfDay()
     spotify_graph   = localquery.local_query(graph,timeOfDay) # Returns 10 spotify songs from user data
 
-    queried_songs_dbpedia   = []
     queried_songs_wikidata  = []
     for song,artist in spotify_graph:
-        #queried_songs_dbpedia.extend(externalquery.dbpedia_query(artist))
         queried_songs_wikidata.extend(externalquery.wikidata_query(artist, song))
+        time.sleep(2)
 
     collected_list = spotify_graph
-    collected_list.extend(queried_songs_dbpedia)
+    collected_list.extend(queried_songs_wikidata)
 
     if(SKIP_SPOTIFY == "0"):
         #Create Spotify playlist
@@ -57,7 +56,9 @@ def main():
         if(track_uris):
             spotifyAPI.add_tracks_to_playlist(sp,playlist_id,track_uris)
     else:
-        print(collected_list)
+        for row in collected_list:
+            print(row)
+        print(len(collected_list))
 
 
 def choseTimeOfDay():
