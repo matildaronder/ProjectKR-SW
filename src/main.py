@@ -14,6 +14,7 @@ load_dotenv()
 CLIENT_ID = os.getenv('CLIENT_ID')
 CLIENT_SECRET = os.getenv('CLIENT_SECRET')
 REDIRECT_URI = os.getenv('REDIRECT_URI')
+SKIP_SPOTIFY = os.getenv('SKIP_SPOTIFY')
 SCOPE = 'playlist-modify-private'
 sp = spotipy.Spotify(auth_manager = SpotifyOAuth(client_id = CLIENT_ID,
                                             client_secret = CLIENT_SECRET,
@@ -40,20 +41,23 @@ def main():
     collected_list = spotify_graph
     collected_list.extend(queried_songs_dbpedia)
 
-    #Create Spotify playlist
-    user    = sp.current_user()
-    user_id = user['id']
-    playlist_name = "Python Playlist by Gurr and Jac"
-    playlist_id = spotifyAPI.create_playlist(sp,user_id, name = playlist_name)
+    if(SKIP_SPOTIFY == "0"):
+        #Create Spotify playlist
+        user    = sp.current_user()
+        user_id = user['id']
+        playlist_name = "Python Playlist by Gurr and Jac"
+        playlist_id = spotifyAPI.create_playlist(sp,user_id, name = playlist_name)
 
-    track_uris = []
-    for track,artist in collected_list:
-        track_uri = spotifyAPI.search_track(artist,track,sp)
-        if(track_uri):
-            track_uris.append(track_uri)
+        track_uris = []
+        for track,artist in collected_list:
+            track_uri = spotifyAPI.search_track(artist,track,sp)
+            if(track_uri):
+                track_uris.append(track_uri)
 
-    if(track_uris):
-        spotifyAPI.add_tracks_to_playlist(sp,playlist_id,track_uris)
+        if(track_uris):
+            spotifyAPI.add_tracks_to_playlist(sp,playlist_id,track_uris)
+    else:
+        print(collected_list)
 
 
 def choseTimeOfDay():
