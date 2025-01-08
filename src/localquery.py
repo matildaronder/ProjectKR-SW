@@ -18,14 +18,15 @@ def local_query(graph : Graph, time_of_day : str):
        SELECT ?SongName ?ArtistName
        WHERE {{
        ?track a mo:Track ;
+              mo:time "{time_of_day}" ;
               mo:performer ?artist ;
-              rdfs:label ?SongName ;
-              mo:time "{time_of_day}" .
+              rdfs:label ?SongName .
+              
 
        ?artist a mo:MusicArtist ;
               rdfs:label ?ArtistName .
        }}
-       LIMIT 10"""
+       LIMIT 25"""
 
        # SongName, ArtistName defined in query
        results = graph.query(query)

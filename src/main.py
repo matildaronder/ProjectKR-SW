@@ -35,8 +35,8 @@ def main():
     queried_songs_dbpedia   = []
     queried_songs_wikidata  = []
     for song,artist in spotify_graph:
-        queried_songs_dbpedia.extend(externalquery.dbpedia_query(artist))
-        #queried_songs_wikidata.extend(externalquery.wikidata_query(artist))
+        #queried_songs_dbpedia.extend(externalquery.dbpedia_query(artist))
+        queried_songs_wikidata.extend(externalquery.wikidata_query(artist, song))
 
     collected_list = spotify_graph
     collected_list.extend(queried_songs_dbpedia)
