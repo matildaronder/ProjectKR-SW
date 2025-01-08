@@ -30,7 +30,8 @@ def main():
     else:
         timeOfDay   = choseTimeOfDay()
 
-    spotify_graph   = localquery.local_query(graph,timeOfDay) # Returns 10 spotify songs from user data
+    user_speed_choice = int(input("Choose what tempo you want to base your playlist on: \n 0. Slow \n 1. Medium \n 2. Fast \n"))
+    spotify_graph   = localquery.local_query(graph,time_values[timeOfDay]) # Returns 10 spotify songs from user data
 
     collected_list = spotify_graph
     queried_songs_dbpedia   = []
@@ -48,7 +49,6 @@ def main():
     # Select 25 random songs
     random_songs = listofsongs.list_of_songs(combined_results, 25)
 
-        
     collected_list.extend(queried_songs_dbpedia)
     collected_list.extend(queried_songs_wikidata)
 
@@ -56,7 +56,7 @@ def main():
         sp =spotifyAPI.authenticate()
         user    = sp.current_user()
         user_id = user['id']
-        playlist_name = f"Hit-Me: A {user_speed_choice} for the {timeOfDay}"
+        playlist_name = f"Hit-Me: A {speed_values[user_speed_choice]} for the {time_values[timeOfDay]}"
         playlist_id = spotifyAPI.create_playlist(sp,user_id, name = playlist_name)
 
         track_uris = []
@@ -73,13 +73,9 @@ def main():
         for song, artist in random_songs:
             print(f"Song: {song}, Artist: {artist}")
 
-
 def choseTimeOfDay():
-    timeOfDay = input("What time of day would you base your music recommendation on? \n 1. Morning \n 2. Afternoon \n 3. Evening \n 4. Night ")
+    timeOfDay = int(input("What time of day would you base your music recommendation on? \n 0. Morning \n 1. Afternoon \n 2. Evening \n 3. Night \n"))
     return timeOfDay
-
-    timeOfDay = int(input("What time of day would you base your music recomendation on? \n 1. Morning \n 2. Afternoon \n 3. Evening \n 4. Night\n"))
-    return time_values[timeOfDay]
 
 if __name__ == "__main__":
     main()
