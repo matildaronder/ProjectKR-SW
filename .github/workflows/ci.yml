@@ -1,0 +1,19 @@
+name: Spotify Secret
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to main branch
+
+jobs:
+  example_job:
+    runs-on: ubuntu-latest  # Run on Ubuntu
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up environment variables
+        run: |
+          echo "CLIENT_ID=${{ secrets.CLIENT_ID }}" >> $GITHUB_ENV
+          echo "CLIENT_SECRET=${{ secrets.CLIENT_SECRET }}" >> $GITHUB_ENV
