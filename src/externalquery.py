@@ -1,4 +1,5 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
+import re
 
 def dbpedia_query(artistName : str):
     #connect to the DBpedia SPARQL endpoint
@@ -18,7 +19,7 @@ def dbpedia_query(artistName : str):
                                 FILTER (lang(?songLabel) = "en" && lang(?artistLabel) = "en")
                                 FILTER (CONTAINS(?artistLabel, "{artistName}"))
                                 }} LIMIT 10"""
-
+    
     sparql.setQuery(query_dbpedia)
 
     try:
@@ -26,8 +27,8 @@ def dbpedia_query(artistName : str):
         results_list = []
 
         for row in result["results"]["bindings"]:
-            song_label = row["artistLabel"]["value"]
-            artist_label = row["songLabel"]["value"]
+            song_label = clean_label(row["artistLabel"]["value"])
+            artist_label = clean_label(row["songLabel"]["value"])
             results_list.append((artist_label, song_label))
             
     except Exception as e:
@@ -93,3 +94,8 @@ def wikidata_query(artistName : str, songName : str):
         print(e)
 
     return results_list
+
+def clean_label(label):
+    
+    #Remove any text in parentheses from a string.
+    return re.sub(r'\s*\([^)]*\)', '', label)
