@@ -3,7 +3,7 @@ from rdflib import Graph
 def init_graph():
        # Load local turtle file
        g = Graph()
-       g.parse("./data/music_data2.ttl", format="turtle")
+       g.parse("./data/music_data3.ttl", format="turtle")
        return g
 
 def local_query(graph : Graph, time_of_day : str, bpm : str):
@@ -21,7 +21,7 @@ def local_query(graph : Graph, time_of_day : str, bpm : str):
             mo:performer ?artist ;
             rdfs:label ?SongName ;
             mo:time "{time_of_day}" ;
-            mo:ean "{bpm}" .
+            mo:bpm "{bpm}" .
 
     ?artist a mo:MusicArtist ;
             rdfs:label ?ArtistName .

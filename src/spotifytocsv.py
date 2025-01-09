@@ -30,7 +30,7 @@ def queryPandaBPM(dataframe, song):
     if not(filtered['tempo'].isna().all()):
         return filtered['tempo'].iloc[0]
     else:
-        return 120
+        return None
 
 
 
@@ -56,20 +56,20 @@ def init_spotifyCSV():
             data = json.load(file)
         filter_data = []
         for iteration, item in enumerate(data):
-            filter_data = {
-                'time_of_day': hour_to_daytime(item.get('endTime')),
-                'track_name': item.get('trackName'),
-                'artist_name': item.get('artistName'),
-                'bpm'       : classify_bpm(queryPandaBPM(dataframe,item.get('trackName')))
-            }
-            print(f"{iteration} out of {len(data)} {len(data)-iteration} is left")
-            mega_data.append(filter_data)
+            bpm = queryPandaBPM(dataframe, item.get('trackName'))
+            if bpm is not None:
+                filter_data = {
+                    'time_of_day': hour_to_daytime(item.get('endTime')),
+                    'track_name': item.get('trackName'),
+                    'artist_name': item.get('artistName'),
+                    'bpm'       : classify_bpm(bpm)
+                }
+                print(f"{iteration} out of {len(data)} {len(data)-iteration} is left")
+                mega_data.append(filter_data)
         
     df = pd.DataFrame(mega_data)
     df.drop_duplicates(inplace=True)
 
-    df.to_csv('./data/spotify_values2.csv', index=False)
+    df.to_csv('./data/spotify_values3.csv', index=False)
     print("Done creating Spotify Data CSV")
-    
-
 
