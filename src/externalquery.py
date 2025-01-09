@@ -53,10 +53,9 @@ def wikidata_query(artistName : str):
                         }} LIMIT 5"""
     sparql.setQuery(query_wikidata)
 
+    results_list = []
     try:
         result = sparql.queryAndConvert()
-
-        results_list = []
 
         for row in result["results"]["bindings"]:
             song_label = clean_label(row["artistLabel"]["value"])
