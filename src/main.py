@@ -37,7 +37,7 @@ def main():
     collected_list = []
     num_of_retrieved_songs = 25
     for i in range(num_of_retrieved_songs):
-        randomInt = random.randint(0, list_len)
+        randomInt = random.randint(0, list_len - 1)
         collected_list.append(local_spotify_song_list[randomInt])
 
     queried_songs_wikidata  = []
