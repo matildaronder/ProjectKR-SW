@@ -3,7 +3,9 @@ import re
 
 def clean_label(label):
     #Remove any text in parentheses from a string.
-    return re.sub(r'\s([^)])', '', label)
+    label = re.sub(r'\s*\([^)]*\)', '', label)
+    label = re.sub(r'\s*-\s*.*', '', label)
+    return label.strip()
 
 def dbpedia_query(artistName : str, songName :str):
     #connect to the DBpedia SPARQL endpoint
@@ -91,14 +93,16 @@ def wikidata_query(artistName : str, songName : str):
     #connect to the Wikidata SPARQL endpoint
     sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
     sparql.setReturnFormat(JSON)
+    artist = clean_label(artistName)
+    song = clean_label(songName)
 
     # Check https://www.wikidata.org/wiki/Wikidata:Main_Page for finding P31, and Q7366
     query_wikidata = f""" SELECT DISTINCT ?recommendedSongLabel ?recommendedArtistLabel
                         WHERE {{
-                             ?artist rdfs:label "{artistName}"@en .
-                    
+                             ?artist rdfs:label "{artist}"@en .
+
                              {{
-                              ?song rdfs:label "{songName}"@en ;
+                              ?song rdfs:label "{song}"@en ;
                                 wdt:P175 ?artist .
                                 ?song wdt:P136 ?genre ;
                                     wdt:P577 ?releaseDate .
@@ -106,11 +110,13 @@ def wikidata_query(artistName : str, songName : str):
                                     wdt:P577 ?sameGenreReleaseDate ;
                                     wdt:P175 ?sameGenreArtist ;
                                     wdt:P31/wdt:P279? wd:Q7366 ;
-                                    rdfs:label ?recommendedSongLabel .
+                                    rdfs:label ?recommendedSongLabel ;
+                                    wdt:P407 ?language .
                                 ?sameGenreArtist rdfs:label ?recommendedArtistLabel .
                     
                                 FILTER (abs(year(?releaseDate) - year(?sameGenreReleaseDate)) <= 2 )
                                 FILTER (lang(?recommendedSongLabel) = "en" && lang(?recommendedArtistLabel) = "en" )
+                                FILTER (?language IN (wd:Q1860, wd:Q9027))
                             }}
                             UNION 
                             {{
@@ -118,13 +124,13 @@ def wikidata_query(artistName : str, songName : str):
                                            rdfs:label ?recommendedSongLabel ;
                                            wdt:P31/wdt:P279? wd:Q7366 .
                                 ?artist rdfs:label ?recommendedArtistLabel
-                                FILTER(?recommendedSongLabel != "{songName}" && lang(?recommendedSongLabel) = "en" && lang(?recommendedArtistLabel) = "en")
+                                FILTER(?recommendedSongLabel != "{song}" && lang(?recommendedSongLabel) = "en" && lang(?recommendedArtistLabel) = "en")
                             }}
 
                             SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
                         }}
                         ORDER BY RAND()
-                        LIMIT 5"""
+                        LIMIT 10"""
 
     sparql.setQuery(query_wikidata)
 
@@ -139,5 +145,6 @@ def wikidata_query(artistName : str, songName : str):
 
     except Exception as e:
         print("Song bad format")
+        print(e)
 
     return results_list

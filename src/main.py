@@ -65,7 +65,7 @@ def main():
     else:
         print(f"\n{num_songs} Recommended Songs:")
         print("-------------------------------------------------------")
-        print(f"Song:{" ":<25}| Artist: ")
+        print(f"Song: {' ':<25}| Artist: ")
         print("-------------------------------------------------------")
         for song, artist in random_songs:
             print(f"{song:<30}| {artist}")
