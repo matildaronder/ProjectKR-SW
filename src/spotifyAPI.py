@@ -8,7 +8,7 @@ def authenticate():
     CLIENT_ID = os.getenv("CLIENT_ID")
     CLIENT_SECRET = os.getenv("CLIENT_SECRET")
     #Registered Redirect URI
-    REDIRECT_URI = 'http://localhost:8080/callback/'
+    REDIRECT_URI = os.getenv("REDIRECT_URI")
 
     #Spotify API
     SCOPE = 'playlist-modify-private'
