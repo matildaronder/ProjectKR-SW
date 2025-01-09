@@ -31,7 +31,7 @@ def init_RDF():
             g.add((track_uri, RDFS.label, Literal(track_name)))
             g.add((track_uri, MUSIC.performer, artist_uri))
             g.add((track_uri, MUSIC.time, Literal(time_of_day)))
-            g.add((track_uri, MUSIC.bpm, Literal(bpm)))
+            g.add((track_uri, MUSIC.ean, Literal(bpm)))
 
     g.serialize("./data/music_data2.ttl", format="turtle")
     print("Done creating RDF")

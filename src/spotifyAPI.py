@@ -18,7 +18,7 @@ def authenticate():
                                                scope=SCOPE))
     return sp
 
-def create_playlist(sp,user_id, name = "My Playlist", description = "Created by a Python Script"):
+def create_playlist(sp,user_id, name = "My Playlist", description = "Created by Dream team group 5"):
     playlist = sp.user_playlist_create(user = user_id, name = name, public = False, description = description)
     return playlist['id']
 

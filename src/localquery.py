@@ -3,10 +3,10 @@ from rdflib import Graph
 def init_graph():
        # Load local turtle file
        g = Graph()
-       g.parse("./data/music_data.ttl", format="turtle")
+       g.parse("./data/music_data2.ttl", format="turtle")
        return g
 
-def local_query(graph : Graph, time_of_day : str):
+def local_query(graph : Graph, time_of_day : str, bpm : str):
 
     # Define prefix for query, can be used on very query
     prefix = """PREFIX mo: <http://purl.org/ontology/mo/>
@@ -20,7 +20,8 @@ def local_query(graph : Graph, time_of_day : str):
     ?track a mo:Track ;
             mo:performer ?artist ;
             rdfs:label ?SongName ;
-            mo:time "{time_of_day}" .
+            mo:time "{time_of_day}" ;
+            mo:ean "{bpm}" .
 
     ?artist a mo:MusicArtist ;
             rdfs:label ?ArtistName .
@@ -32,6 +33,6 @@ def local_query(graph : Graph, time_of_day : str):
     results_list = []
 
     for row in results:
-            results_list.append((str(row.SongName), str(row.ArtistName)))
+       results_list.append((str(row.SongName), str(row.ArtistName)))
 
     return results_list
