@@ -16,11 +16,13 @@ def init_RDF():
         next(reader)
 
         for row in reader:
-            time_of_day, track_name, artist_name = row
+            time_of_day, track_name, artist_name, bpm = row
             sanitized_artist_name = sanitize_for_uri(artist_name)
             sanitized_track_name = sanitize_for_uri(track_name)
+            sanitized_bpm_name = sanitize_for_uri(bpm)
             artist_uri = URIRef(MUSIC[sanitized_artist_name])
             track_uri = URIRef(MUSIC[sanitized_track_name])
+            bpm_uri = URIRef(MUSIC[sanitized_bpm_name])
 
             # Adding Artist
             g.add((artist_uri, RDF.type, MUSIC.MusicArtist))
@@ -31,6 +33,7 @@ def init_RDF():
             g.add((track_uri, RDFS.label, Literal(track_name)))
             g.add((track_uri, MUSIC.performer, artist_uri))
             g.add((track_uri, MUSIC.time, Literal(time_of_day)))
+            g.add((bpm_uri, MUSIC.bpm, Literal(bpm)))
 
     g.serialize("./data/music_data.ttl", format="turtle")
     print("Done creating RDF")

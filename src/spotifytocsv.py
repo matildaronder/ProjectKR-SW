@@ -2,9 +2,10 @@ import pandas as pd
 import json
 import os
 import glob
+import bpmquery
 from datetime import datetime
 
-directory_path = '../include/SpotifyCSV2/Gustav'
+directory_path = './include/SpotifyCSV2/Gustav'
 
 mega_data = []
 
@@ -25,18 +26,22 @@ def init_spotifyCSV():
     for file_path in glob.glob(os.path.join(directory_path, '*.json')):
         with open(file_path, 'r', encoding='utf-8') as file:
             data = json.load(file)
-
+            
         filter_data = []
         for item in data:
             filter_data = {
                 'time_of_day': hour_to_daytime(item.get('endTime')),
                 'track_name': item.get('trackName'),
-                'artist_name': item.get('artistName')
+                'artist_name': item.get('artistName'),
+                'bpm'       : bpmquery.get_bpm(item.get('trackName'), item.get('artistName'))
             }
             mega_data.append(filter_data)
-
+            print("added")
+        
     df = pd.DataFrame(mega_data)
     df.drop_duplicates(inplace=True)
 
-    df.to_csv('../data/spotify_values.csv', index=False)
+    df.to_csv('./data/spotify_values2.csv', index=False)
     print("Done creating Spotify Data CSV")
+    
+init_spotifyCSV()

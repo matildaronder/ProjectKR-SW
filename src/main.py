@@ -8,6 +8,7 @@ import time
 import externalquery as externalquery,localquery as localquery,spotifyAPI as spotifyAPI,spotipy,os
 import spotifytocsv as spotifytocsv
 import listofsongs as listofsongs
+import bpmquery
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 
@@ -43,9 +44,13 @@ def main():
     combined_results = queried_songs_dbpedia + queried_songs_wikidata
     
     # Select 25 random songs
-    random_songs = listofsongs.list_of_songs(combined_results, 25)
+    random_songs = listofsongs.list_of_songs(combined_results, 10)
+    #categorized_songs = []
+    # for song, artist in random_songs:
+    #    bpm_results = bpmquery.get_bpm(random_songs)
+    #    for bpm_song, bpm_artist, bpm, category in bpm_results:
+    #       categorized_songs.append((bpm_song, bpm_artist, bpm, category))
 
-        
     collected_list = spotify_graph
     collected_list.extend(queried_songs_dbpedia)
 
@@ -65,10 +70,11 @@ def main():
         if(track_uris):
             spotifyAPI.add_tracks_to_playlist(sp,playlist_id,track_uris)
     else:
-        #print(collected_list)
-        print("\n25 Recommended Songs:")
-        for song, artist in random_songs:
-            print(f"Song: {song}, Artist: {artist}")
+        
+        #recommended_songs = listofsongs.list_of_songs(categorized_songs, 10)
+        print("\n 10 recommended songs: \n")
+        for song, artist, bpm, category in random_songs:
+            print(f"Song: {song}, Artist: {artist}, BPM: {bpm}, ({category})")
 
 
 def choseTimeOfDay():

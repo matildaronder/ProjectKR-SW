@@ -47,10 +47,11 @@ def wikidata_query(artistName : str):
                         ?song wdt:P31 wd:Q7366 ;
                                 wdt:P175 ?artist ;
                                 rdfs:label ?songLabel .
+                            
                             ?artist rdfs:label ?artistLabel .
                         FILTER(CONTAINS(?artistLabel, "{artistName}")) .
                         FILTER(LANG(?artistLabel) = "en" && LANG(?songLabel) = "en") .
-                        }} LIMIT 5"""
+                        }}LIMIT 10"""
     sparql.setQuery(query_wikidata)
 
     try:

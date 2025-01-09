@@ -3,40 +3,6 @@ from spotipy.oauth2 import SpotifyOAuth
 import os
 from dotenv import load_dotenv
 
-from SPARQLWrapper import SPARQLWrapper, JSON
-
-# Define the SPARQL endpoint for Wikidata
-sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
-sparql.setReturnFormat(JSON)
-
-# Define the SPARQL query
-query = """
-    PREFIX wd: <http://www.wikidata.org/entity/>
-    PREFIX wdt: <http://www.wikidata.org/prop/direct/>
-    PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-
-    SELECT ?song ?songLabel ?artist ?artistLabel ?bpm WHERE {
-        ?song wdt:P31 wd:Q7366 ;
-            wdt:P175 ?artist ;
-            wdt:P1725 ?bpm .
-
-        SERVICE wikibase:label {
-        bd:serviceParam wikibase:language "en" .
-        ?song rdfs:label ?songLabel .
-        ?artist rdfs:label ?artistLabel .
-        }
-    }
-    LIMIT 10
-    """
-sparql.setQuery(query)
-
-# Execute the query
-results = sparql.queryAndConvert()
-
-# Print results
-for result in results["results"]["bindings"]:
-    print(f"Song: {result['songLabel']['value']}, Artist: {result['artistLabel']['value']}, BPM: {result['bpm']['value']}")
-
 def authenticate():
     load_dotenv()
     CLIENT_ID = os.getenv("CLIENT_ID")
