@@ -83,8 +83,6 @@ def wikidata_query(artistName : str, songName : str):
     try:
         result = sparql.queryAndConvert()
 
-
-
         for row in result["results"]["bindings"]:
             song_label = row["recommendedArtistLabel"]["value"]
             artist_label = row["recommendedSongLabel"]["value"]
