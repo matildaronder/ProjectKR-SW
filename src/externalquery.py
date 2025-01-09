@@ -43,33 +43,32 @@ def wikidata_query(artistName : str, songName : str):
     sparql.setReturnFormat(JSON)
 
     # Check https://www.wikidata.org/wiki/Wikidata:Main_Page for finding P31, and Q7366
-    query_wikidata = f"""SELECT DISTINCT ?influencedArtist ?influencedSong ?sameGenreSong ?sameGenreArtistLabel ?recommendedSongLabel ?recommendedArtistLabel
+    query_wikidata = f""" SELECT DISTINCT ?recommendedSongLabel ?recommendedArtistLabel
                         WHERE {{
-                            ?song rdfs:label "{songName}"@en ;
+                             ?artist rdfs:label "{artistName}"@en .
+                    
+                             {{
+                              ?song rdfs:label "{songName}"@en ;
                                 wdt:P175 ?artist .
-                            ?artist rdfs:label "{artistName}"@en .
-
-                            OPTIONAL {{
-                                ?artist wdt:P737 ?influencedArtist .
-                                ?influencedArtist rdfs:label ?recommendedArtistLabel .
-                                ?influencedSong wdt:P175 ?influencedArtist ;
-                                                wdt:P31/wdt:P279* wd:Q7366 ;
-                                                rdfs:label ?recommendedSongLabel .
-                                FILTER (lang(?recommendedArtistLabel) = "en" && lang(?recommendedSongLabel) = "en")
-                            }}
-
-                            OPTIONAL {{
                                 ?song wdt:P136 ?genre ;
                                     wdt:P577 ?releaseDate .
                                 ?sameGenreSong wdt:P136 ?genre ;
                                     wdt:P577 ?sameGenreReleaseDate ;
                                     wdt:P175 ?sameGenreArtist ;
-                                    wdt:P31/wdt:P279* wd:Q7366 ;
+                                    wdt:P31/wdt:P279? wd:Q7366 ;
                                     rdfs:label ?recommendedSongLabel .
                                 ?sameGenreArtist rdfs:label ?recommendedArtistLabel .
                     
                                 FILTER (abs(year(?releaseDate) - year(?sameGenreReleaseDate)) <= 2 )
                                 FILTER (lang(?recommendedSongLabel) = "en" && lang(?recommendedArtistLabel) = "en" )
+                            }}
+                            UNION 
+                            {{
+                                ?otherSong wdt:P175 ?artist ;
+                                           rdfs:label ?recommendedSongLabel ;
+                                           wdt:P31/wdt:P279? wd:Q7366 .
+                                ?artist rdfs:label ?recommendedArtistLabel
+                                FILTER(?recommendedSongLabel != "{songName}" && lang(?recommendedSongLabel) = "en" && lang(?recommendedArtistLabel) = "en")
                             }}
 
                             SERVICE wikibase:label {{ bd:serviceParam wikibase:language "en". }}
