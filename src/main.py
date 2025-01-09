@@ -35,29 +35,23 @@ def main():
     list_len = len(local_spotify_song_list)
     
     collected_list = []
-    num_of_retrieved_songs = 10
+    num_of_retrieved_songs = 25
     for i in range(num_of_retrieved_songs):
         randomInt = random.randint(0, list_len)
         collected_list.append(local_spotify_song_list[randomInt])
 
-    queried_songs_dbpedia   = []
     queried_songs_wikidata  = []
 
     for song,artist in collected_list:
-        query_db        = externalquery.dbpedia_query(artist)
-        query_wikidata  = externalquery.wikidata_query("Queen")
-        if query_db: queried_songs_dbpedia.extend(query_db)
+        query_wikidata  = externalquery.wikidata_query(artist, song)
         if query_wikidata: queried_songs_wikidata.extend(query_wikidata)
 
     # Combine the results
-    combined_results = queried_songs_dbpedia + queried_songs_wikidata
+    combined_results = collected_list + queried_songs_wikidata
     
     # The number of random recommended songs
-    num_songs = 30
+    num_songs = 75
     random_songs = listofsongs.list_of_songs(combined_results, num_songs)
-
-    collected_list.extend(queried_songs_dbpedia)
-    collected_list.extend(queried_songs_wikidata)
 
     if(os.getenv('SKIP_SPOTIFY') == "0"):
         sp =spotifyAPI.authenticate()
@@ -67,11 +61,10 @@ def main():
         playlist_id = spotifyAPI.create_playlist(sp,user_id, name = playlist_name)
 
         track_uris = []
-        for track,artist in collected_list:
+        for track,artist in random_songs:
             track_uri = spotifyAPI.search_track(artist,track,sp)
             if(track_uri):
                 track_uris.append(track_uri)
-        print(track_uris)
 
         if(track_uris):
             spotifyAPI.add_tracks_to_playlist(sp,playlist_id,track_uris)
