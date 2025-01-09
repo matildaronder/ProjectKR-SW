@@ -4,10 +4,10 @@
 # Spotify Search
 # Create spotify list. 
 
-import time
-import externalquery as externalquery,localquery as localquery,spotifyAPI as spotifyAPI,spotipy,os
-import spotifytocsv as spotifytocsv
-import listofsongs as listofsongs
+import time, os
+import externalquery, localquery
+import spotifyAPI, spotipy, spotifytocsv
+import listofsongs
 from spotipy.oauth2 import SpotifyOAuth
 from dotenv import load_dotenv
 
@@ -37,7 +37,7 @@ def main():
     queried_songs_wikidata  = []
     for song,artist in spotify_graph:
         queried_songs_dbpedia.extend(externalquery.dbpedia_query(artist))
-        #queried_songs_wikidata.extend(externalquery.wikidata_query(artist))
+        # queried_songs_wikidata.extend(externalquery.wikidata_query(artist))
 
     # Combine the results
     combined_results = queried_songs_dbpedia + queried_songs_wikidata
@@ -61,14 +61,18 @@ def main():
             track_uri = spotifyAPI.search_track(artist,track,sp)
             if(track_uri):
                 track_uris.append(track_uri)
+        print(track_uris)
 
         if(track_uris):
             spotifyAPI.add_tracks_to_playlist(sp,playlist_id,track_uris)
     else:
         #print(collected_list)
         print("\n25 Recommended Songs:")
+        print("-------------------------------------------------------")
+        print(f"Song:{" ":<25}| Artist: ")
+        print("-------------------------------------------------------")
         for song, artist in random_songs:
-            print(f"Song: {song}, Artist: {artist}")
+            print(f"{song:<30}| {artist}")
 
 
 def choseTimeOfDay():
