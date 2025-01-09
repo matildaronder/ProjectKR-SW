@@ -92,7 +92,99 @@ def wikidata_query(artistName : str, songName : str):
 
     return results_list
 
-def clean_label(label):
+
+def wikidata_query_nationality_genre(artistName : str):
+    sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+    sparql.setReturnFormat(JSON)
+
+    wikidata_query = f"""SELECT ?song ?singerName ?nationality 
+    WHERE {{
+    ?targetArtist rdf:type dbo:MusicalArtist ;
+                rdfs:label "{artistName}"@en ;
+                dbo:birthPlace ?nationality .
+
+    ?targetSong rdf:type dbo:MusicalWork ;
+              dbo:artist ?targetArtist ;
+              dbo:genre ?genre .
+
+    {{
+    ?singer rdf:type dbo:MusicalArtist ;
+            dbo:birthPlace ?nationality ;
+            rdfs:label ?singerName .
+    }}
+    UNION
+    {{
+    ?singer rdf:type dbo:MusicalArtist ;
+            dbo:genre ?genre ;
+            rdfs:label ?singerName .
+    }}
+
+    ?song rdf:type dbo:MusicalWork ;
+        dbo:artist ?singer .
+
+    FILTER (lang(?singerName) = "en")
+    }}
+    ORDER BY RAND()
+    LIMIT 50"""
+
+    sparql.setQuery(wikidata_query)
+
+    try:
+        result = sparql.queryAndConvert()
+
+        results_list = []
+
+        for row in result["results"]["bindings"]:
+            song_label = clean_label(row["artistLabel"]["value"])
+            artist_label = clean_label(row["songLabel"]["value"])
+            results_list.append((artist_label, song_label))
+
+    except Exception as e:
+        print(e)
+
+    return results_list
+
+
+def wikidata_query_age(artistName : str):
+
+    sparql = SPARQLWrapper("https://query.wikidata.org/sparql")
+    sparql.setReturnFormat(JSON)
+    wikidata_query = f"""SELECT ?otherSinger ?otherSingerName ?birthYear
+    WHERE {{
+        ?targetSinger rdf:type dbo:MusicalArtist ;
+                rdfs:label "{artistName}"@en ;
+                dbo:birthDate ?birthDate .
+        BIND(YEAR(?birthDate) AS ?targetBirthYear) .
+  
+  ?otherSinger rdf:type dbo:MusicalArtist ;
+               dbo:birthDate ?otherBirthDate ;
+               rdfs:label ?otherSingerName .
+  BIND(YEAR(?otherBirthDate) AS ?birthYear) .
+  
+  FILTER (?birthYear >= (?targetBirthYear - 5) && ?birthYear <= (?targetBirthYear + 5)) .
+
+  # Ensure labels are in English
+  FILTER (lang(?otherSingerName) = "en") .
+  
+  # Exclude the target singer from the results
+  FILTER (?targetSinger != ?otherSinger)
+    }}
+    ORDER BY RAND()
+    LIMIT 50"""
     
-    #Remove any text in parentheses from a string.
-    return re.sub(r'\s*\([^)]*\)', '', label)
+    sparql.setQuery(wikidata_query)
+
+    try:
+        result = sparql.queryAndConvert()
+
+        results_list = []
+
+        for row in result["results"]["bindings"]:
+            song_label = clean_label(row["artistLabel"]["value"])
+            artist_label = clean_label(row["songLabel"]["value"])
+            results_list.append((artist_label, song_label))
+
+    except Exception as e:
+        print(e)
+
+    return results_list

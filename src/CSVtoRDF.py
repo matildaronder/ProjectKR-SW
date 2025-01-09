@@ -10,13 +10,13 @@ def sanitize_for_uri(value):
     return quote(value.replace(" ", "_").replace('"', "").replace("(", "").replace(")", "").replace(",", ""))
 
 def init_RDF():
-    with open("./data/spotify_values.csv", "r", encoding='utf-8') as file:
+    with open("./data/spotify_values2.csv", "r", encoding='utf-8') as file:
         reader = csv.reader(file, quotechar='"', delimiter=',')
 
         next(reader)
 
         for row in reader:
-            time_of_day, track_name, artist_name = row
+            time_of_day, track_name, artist_name, bpm = row
             sanitized_artist_name = sanitize_for_uri(artist_name)
             sanitized_track_name = sanitize_for_uri(track_name)
             artist_uri = URIRef(MUSIC[sanitized_artist_name])
@@ -31,6 +31,9 @@ def init_RDF():
             g.add((track_uri, RDFS.label, Literal(track_name)))
             g.add((track_uri, MUSIC.performer, artist_uri))
             g.add((track_uri, MUSIC.time, Literal(time_of_day)))
+            g.add((track_uri, MUSIC.bpm, Literal(bpm)))
 
-    g.serialize("./data/music_data.ttl", format="turtle")
+    g.serialize("./data/music_data2.ttl", format="turtle")
     print("Done creating RDF")
+
+init_RDF()
