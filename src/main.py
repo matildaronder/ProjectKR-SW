@@ -8,6 +8,7 @@ import time, os, random
 import externalquery, localquery
 import spotifyAPI, spotifytocsv
 import listofsongs
+from dotenv import load_dotenv
 
 speed_values    = ["Low","Medium","High"]
 time_values     = ["Morning","Afternoon","Evening","Night"]
